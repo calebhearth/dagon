@@ -3,13 +3,13 @@ $column = 0
 $tokens = []
 %%{
   machine new_parser;
-  new_variable = '-'? lower (lower | digit | '-')*;
+  identifier = '-'? lower (lower | digit | '-')*;
   assignment = ':';
   literal = digit;
   newline = "\r"? "\n" | "\r";
 
   main := |*
-    new_variable => { emit(:variable, data, ts, te) };
+    identifier => { emit(:variable, data, ts, te) };
     assignment => { emit(:assignment, data, ts, te) };
     literal => { emit(:literal, data, ts, te) };
     newline => { $line += 1; $column = 0 };
@@ -19,12 +19,12 @@ $tokens = []
 
 %% write data;
 
-def emit(name, data, ts, te)
-  $tokens << [[$line, $column], name, data[ts...te]]
-  $column += te - ts
+def emit(name, data, start_char, end_char)
+  $tokens << [[$line, $column], name, data[start_char...end_char]]
+  $column += end_char - start_char
 end
 
-def tokenize data
+def tokenize(data)
   eof = data.length
   %% write init;
   %% write exec;
