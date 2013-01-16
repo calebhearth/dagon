@@ -1,4 +1,3 @@
 task :default do
-  `ragel -R machine.rl`
-  puts `ruby machine.rb`
+  puts `ragel -R machine.rl && ruby machine.rb`
 end
