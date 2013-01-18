@@ -21,7 +21,7 @@
   newlines = newline+;
   double_quote = "\"";
   string_chars = any - double_quote;
-  string = double_quote (string_chars | "\\\"")* double_quote;
+  string = double_quote (string_chars | '\"')* double_quote;
   indent = "  ";
 
   main := |*

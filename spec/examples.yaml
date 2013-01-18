@@ -50,6 +50,9 @@
 '"string"':
   - "[[:STRING, 'string'], [:EOF, 'EOF']]"
   - "[:program, [[:string, 'string']]]"
+'"escaped \""':
+  - "[[:STRING, 'escaped \\\"'], [:EOF, 'EOF']]"
+  - "[:program, [[:string, 'escaped \\\"']]]"
 'x: ["string", 1, 4.2]':
   - "[[:IDENTIFIER, 'x'], [:ASSIGNMENT, ':'], [:LBRACKET, '['], [:STRING, 'string'], [:COMMA, ','], [' ', ' '], [:INTEGER, '1'], [:COMMA, ','], [' ', ' '], [:FLOAT, '4.2'], [:RBRACKET, ']'], [:EOF, 'EOF']]"
   - "[:program, [[:assignment, [:identifier, 'x'], [:array, [:values, [[:string, 'string'], [:integer, 1], [:float, 4.2]]]]]]]"
