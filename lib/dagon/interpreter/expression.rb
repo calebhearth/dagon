@@ -33,6 +33,10 @@ module Dagon
         lhs = Expression.new(value, binding).reduce
         rhs = Expression.new(next_node, binding).reduce
         Operation.new(:**, lhs, rhs).reduce
+      when :object_call
+        id = Identifier.new([:identifier, value], binding).lookup
+        args = next_node
+        id
       else
         error "Unknown type: #{type}"
       end

@@ -44,16 +44,19 @@ rule
       | array
       | method_call
       | method_call_on_object
+      | object_call
 
   literal: FLOAT { result = [:float, val[0].to_f] }
          | INTEGER { result = [:integer, val[0].to_i] }
-         | DOUBLE_QUOTE identifier DOUBLE_QUOTE { result = [:string, val[1][1] ]}
+         | STRING { result = [:string, val[0] ]}
 
   identifier: IDENTIFIER { result = [:identifier, val[0]]}
 
   method_call_on_object: identifier DOT method_call { result = [:call_on_object, val[0], val[2]]}
   method_call: identifier LPAREN RPAREN { result = [:call, val[0], [:args, []]] }
              | identifier LPAREN list RPAREN { result = [:call, val[0], [:args, val[2]]] }
+  object_call: CONSTANT LPAREN RPAREN { result = [:object_call, val[0], [:args, []]] }
+             | CONSTANT LPAREN expression RPAREN { result = [:object_call, val[0], [:args, [val[2]]]] }
 end
 
 ---- header

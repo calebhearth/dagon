@@ -16,7 +16,7 @@ module Dagon
     end
 
     def define
-      dclass = DClass.new(@name, @block, @binding)
+      dclass = DClass.new(@name, @block, @binding.dup)
       @binding.define @name, dclass
     end
   end
@@ -26,6 +26,12 @@ module Dagon
       @name = name
       @block = block
       @binding = binding
+      @block.binding = @binding
+      @block.invoke
+    end
+
+    def binding
+      @binding
     end
   end
 end

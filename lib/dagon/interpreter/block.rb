@@ -13,6 +13,10 @@ module Dagon
       @binding = binding
     end
 
+    def binding= binding
+      @binding = binding
+    end
+
     def invoke *args
       @code.each do |statement|
         Statement.new(statement, @binding).reduce

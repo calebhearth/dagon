@@ -8,13 +8,16 @@ module Dagon
       binding.lookup(to_sym)
     end
     def parse
-      if (node = next_node) != :identifier
+      if (node = next_node) != node_name
         error "Invalid identifier #{node}"
       end
       @name = next_node
     end
     def to_sym
       @name.to_sym
+    end
+    def node_name
+      :identifier
     end
   end
 end
