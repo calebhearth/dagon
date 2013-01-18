@@ -1,8 +1,8 @@
 class Dagon::Ast::Generator
 prechigh
-  left EXPONENT
   left '*' '/'
   left '+' '-'
+  right EXPONENT
 preclow
 rule
   target: program EOF { result = [:program, val[0]]}
