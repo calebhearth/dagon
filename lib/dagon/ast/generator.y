@@ -56,7 +56,7 @@ rule
   method_call: identifier LPAREN RPAREN { result = [:call, val[0], [:args, []]] }
              | identifier LPAREN list RPAREN { result = [:call, val[0], [:args, val[2]]] }
   object_call: CONSTANT LPAREN RPAREN { result = [:object_call, val[0], [:args, []]] }
-             | CONSTANT LPAREN expression RPAREN { result = [:object_call, val[0], [:args, [val[2]]]] }
+             | CONSTANT LPAREN list RPAREN { result = [:object_call, val[0], [:args, [val[2]]]] }
 end
 
 ---- header
