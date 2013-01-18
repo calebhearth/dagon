@@ -1,7 +1,7 @@
 module Dagon
   class Call < Node
     def run
-      if next_node != :call
+      if ![:object_call, :call].include? next_node
         error "Invalid call"
       end
 
@@ -10,6 +10,5 @@ module Dagon
       method = identifier.lookup
       method.invoke(*args)
     end
-
   end
 end
