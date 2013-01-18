@@ -19,5 +19,8 @@ module Dagon
     def node_name
       :identifier
     end
+    def to_s
+      to_sym
+    end
   end
 end

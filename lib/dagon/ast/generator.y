@@ -22,7 +22,7 @@ rule
 
   class_definition: CONSTANT ':' block { result = [:class_definition, [:constant, val[0]], val[2]] }
 
-  method_definition: identifier ':' block { result = [:method_definition, val[0], val[2]] }
+  method_definition: identifier ':' block { result = [:method_definition, val[0], [], val[2]] }
                    | identifier LPAREN list RPAREN ':' block { result = [:method_definition, val[0], val[2], val[5]]}
                    | identifier LPAREN RPAREN ':' block { result = [:method_definition, val[0], [], val[4]] }
 

@@ -19,9 +19,7 @@
   integer = digit+;
   newline = "\r"? "\n" | "\r";
   newlines = newline+;
-  double_quote = "\"";
-  string_chars = any - double_quote;
-  string = double_quote (string_chars | '\"')* double_quote;
+  string = '"' ( [^"\\] | /\\./ )* '"';
   indent = "  ";
 
   main := |*
