@@ -77,7 +77,7 @@ end
 
 ---- header
 ---- inner
-  attr_accessor :table
+  attr_accessor :table, :tokens
   def initialize(tokens, debug = false)
     @yydebug = debug
     @tokens = tokens
@@ -90,7 +90,6 @@ end
   end
 
   private
-  attr_accessor :tokens
   def next_token
     token = tokens.shift
     if token
