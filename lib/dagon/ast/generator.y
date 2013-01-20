@@ -14,6 +14,8 @@ rule
 
   block: INDENT statements DEDENT { result = [:block, val[1]] }
 
+  inline_block: LBRACE statements RBRACE { result = [:block, val[1]] }
+
   statements: statements statement { result.push val[1] }
             | statement { result = [val[0]] }
 
@@ -33,7 +35,9 @@ rule
   class_definition: CONSTANT ':' block { result = [:class_definition, [:constant, val[0]], val[2]] }
 
   method_definition: identifier ':' block { result = [:method_definition, val[0], [:args, []], val[2]] }
+                   | identifier ASSIGNMENT inline_block { result = [:method_definition, val[0], [:args, []], val[2]] }
                    | identifier LPAREN list RPAREN ':' block { result = [:method_definition, val[0], [:args, *val[2]], val[5]]}
+                   | identifier LPAREN list RPAREN ASSIGNMENT inline_block { result = [:method_definition, val[0], [:args, *val[2]], val[2]] }
 
   assignment: identifier ASSIGNMENT expression { result = [:assignment, val[0], val[2]] }
 
@@ -99,6 +103,12 @@ end
       info = token.pop
       @line = info[0]
     end
+    puts "-- TOKEN --"
+    puts token.inspect
+    puts "-- TOKEN --"
+    puts "-- TOKEN --"
+    puts "-- TOKEN --"
+    puts "-----------"
     token
   end
 
