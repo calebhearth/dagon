@@ -103,12 +103,6 @@ end
       info = token.pop
       @line = info[0]
     end
-    puts "-- TOKEN --"
-    puts token.inspect
-    puts "-- TOKEN --"
-    puts "-- TOKEN --"
-    puts "-- TOKEN --"
-    puts "-----------"
     token
   end
 
