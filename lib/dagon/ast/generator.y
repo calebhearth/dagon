@@ -14,7 +14,7 @@ rule
 
   block: INDENT statements DEDENT { result = [:block, val[1]] }
 
-  inline_block: LBRACE statements RBRACE { result = [:block, val[1]] }
+  inline_block: LBRACE statement RBRACE { result = [:block, [val[1]]] }
 
   statements: statements statement { result.push val[1] }
             | statement { result = [val[0]] }
