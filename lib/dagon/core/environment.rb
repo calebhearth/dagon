@@ -5,6 +5,14 @@ module Dagon
     class Environment
       include Singleton
 
+      def initialize
+        @method_table = {}
+      end
+
+      def define_dagon_method name, code_block
+        @method_table[name] = ->(*args) { code_block.invoke(*args) }
+      end
+
       def binding
         scope
       end
@@ -23,6 +31,11 @@ module Dagon
 
       def print *args
         $stdout.print(*args.map(&:to_s))
+      end
+
+      def require filename
+        contents = File.read("#{$dagon_cwd}/#{filename.value}.dg")
+        self.eval(Dagon::Core::String.new(contents))
       end
 
       def eval *args
