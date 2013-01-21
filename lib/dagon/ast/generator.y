@@ -25,6 +25,7 @@ rule
            | expression
            | conditional_statement
            | while_statement
+           | method_call_with_block
 
   while_statement: WHILE condition block { result = [:while_statement, val[1], val[2]] }
 
@@ -65,7 +66,6 @@ rule
       | literal
       | array
       | method_call
-      | method_call_with_block
       | object_call
       | method_call_on_object
 
