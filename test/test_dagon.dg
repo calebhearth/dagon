@@ -1,0 +1,45 @@
+require("assertions")
+
+assert-equal("foo", "foo")
+assert-not-equal("foo", "bar")
+assert-equal(1 + 1, 2)
+# assignment
+x: 1
+assert-equal(x, 1)
+# string addition, method call, identifier and literal addition
+tell(name, message):
+  "Hey, " + name + ": " + message + "!"
+assert-equal(tell("Caleb", "what's up"), "Hey, Caleb: what's up!")
+assert-equal(tell(message: "foo", name: "bar"), "Hey, bar: foo!")
+# bringing it all together
+fibonacci-imperative(n):
+  current: 0
+  next: 1
+
+  n.times
+    temp: next
+    next: next + current
+    current: temp
+
+  current
+assert-equal(fibonacci-imperative(5), 5)
+
+Greeter:
+  greet(name):
+    if true
+      "Hello " + name
+
+greeter: Greeter()
+assert-equal(greeter.greet("wombat"), "Hello wombat")
+
+inline-block: { eval("5") }
+assert-equal(inline-block(), 5)
+
+assert-equal(5 + 3, 8)
+assert-equal(12 - 6, 6)
+assert-equal(7 * 2, 14)
+assert-equal(10 / 2, 5)
+assert-equal(3 ** 2, 9)
+assert-equal(4 - 2 * 2, 0)
+
+puts("")
