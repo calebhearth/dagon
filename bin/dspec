@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require './build/tokenizer'
+require './lib/dagon/interpreter'
+require './build/ast/generator'
+
+def read_program
+  $dagon_cwd = Dir.getwd
+  program = ""
+  ["spec/assertions.dg", "spec/dspec.dg", *Dir.glob('spec/*_spec.dg')].each do |file|
+    program << File.open(file, 'rb').read
+    program << "\n"
+  end
+  program
+end
+
+program = read_program.chomp
+tokenizer = Dagon::Tokenizer.new
+tokens = tokenizer.tokenize program
+ast = Dagon::Ast::Generator.new(tokens, nil).parse.table
+interpreter = Dagon::Interpreter.new(ast)
+interpreter.run
