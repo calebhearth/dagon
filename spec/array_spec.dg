@@ -5,3 +5,22 @@ describe("Array") ->
   it("can be accessed") ->
     array: [1, 2, 3]
     assert-equal(array[0], 1)
+
+  it("can add arrays together") ->
+    assert-equal([1, 2, 3] + [4], [1, 2, 3, 4])
+
+  it("can subtract arrays from each other") ->
+    assert-equal([1, 1, 2, 2, 3, 3, 4, 5] - [1, 2, 4], [3, 3, 5])
+
+  it("can compact") ->
+    assert-equal([1, void, 2].compact, [1, 2])
+
+  it("knows it's length") ->
+    assert-equal([1, 2, 3].length, 3)
+
+  it("can iterate over the array") ->
+    array: [1, 2, 3]
+    x: 0
+    array.each ->(i)
+      x: x + i
+    assert-equal(x, 6)

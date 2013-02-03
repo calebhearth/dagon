@@ -1,15 +1,16 @@
 module Dagon
   module Core
     class DG_Class
-      attr_reader :name
+      attr_reader :name, :class_methods
       def initialize name = nil, parent = nil
         @constants = {}
         @methods = {
+          methods: ->(vm, ref, *args) { vm.get_class("Array").dagon_send(vm, "new", @methods.keys) },
           init: ->(vm, ref, *args) { },
           exit: ->(vm, ref, *args) { exit(0) },
           puts: ->(vm, ref, *args) { puts *args.map(&:to_s) },
           print: ->(vm, ref, *args) { print *args.map(&:to_s) },
-          gets: ->(vm, ref, *args) { DG_String.new($stdin.gets) },
+          gets: ->(vm, ref, *args) { vm.get_class("String").dagon_send(vm, "new", $stdin.gets) },
           eval: ->(vm, ref, *args) {
             tokens = Dagon::Scanner.tokenize(args[0].value, '(eval)')
             tree = Dagon::Parser.parse(tokens, '(eval)', false)
@@ -27,6 +28,9 @@ module Dagon
         }
         @class_ivars = {}
         @class_methods = {
+          methods: ->(vm, ref) {
+            vm.get_class("Array").dagon_send(vm, "new", ref.class_methods.keys)
+          },
           new: ->(vm, ref, *args) {
             obj = ref.dagon_allocate
             obj.dagon_send(vm, "init", *args)
@@ -35,6 +39,11 @@ module Dagon
         }
         @name = name || "Class"
         @parent = parent
+        boot
+      end
+
+      def boot
+        # noop
       end
 
       def dagon_const_get constant

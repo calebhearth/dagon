@@ -1,6 +1,7 @@
 class Dagon::Parser
 prechigh
   right EXPONENT
+  left '!'
   left '*' '/'
   left '+' '-'
   left ':'
@@ -23,7 +24,6 @@ rule
            | expression
            | conditional_statement
            | while_statement
-           | method_call_with_block
 
   while_statement: WHILE condition block { result = AST::WhileNode.new(@filename, nil, val[1], val[2]) }
 
@@ -34,12 +34,8 @@ rule
 
   class_definition: CONSTANT ':' block { result = AST::ClassDefinitionNode.new(@filename, nil, val[0].data, val[2]) }
 
-  method_definition: IDENTIFIER ':' block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].data, AST::Function.new(@filename, nil, [], val[2])) }
-                   | IDENTIFIER ASSIGNMENT inline_block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].data, AST::Function.new(@filename, nil, [], val[2])) }
-                   | IDENTIFIER LPAREN list RPAREN ':' block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].data, AST::Function.new(@filename, nil, val[2], val[5])) }
-                   | IDENTIFIER LPAREN list RPAREN ASSIGNMENT inline_block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].data, AST::Function.new(@filename, nil, val[2], val[5])) }
 
-  assignment: IDENTIFIER ASSIGNMENT expression { result = AST::AssignmentNode.new(@filename, nil, val[0].data, val[2]) }
+  assignment: method_name ASSIGNMENT expression { result = AST::AssignmentNode.new(@filename, nil, val[0].variable_name, val[2]) }
 
   expression: expression '-' expression { result = call_on_object(val[0], '-', val[2]) }
             | expression '+' expression { result = call_on_object(val[0], '+', val[2]) }
@@ -48,12 +44,15 @@ rule
             | expression EXPONENT expression { result = call_on_object(val[0], '**', val[2]) }
             | condition
 
+  unary_expression: '!' expression { result = AST::UnaryFunctionCallNode.new(@filename, nil, val[1], "!") }
+
   condition: expression '>' expression { result = call_on_object(val[0], '>', val[2]) }
            | expression '<' expression { result = call_on_object(val[0], '<', val[2]) }
            | expression '<=' expression { result = call_on_object(val[0], '<=', val[2]) }
            | expression '>=' expression { result = call_on_object(val[0], '>=', val[2]) }
            | expression '=' expression { result = call_on_object(val[0], '=', val[2]) }
            | expression '!=' expression { result = call_on_object(val[0], '!=', val[2]) }
+           | unary_expression
            | term
 
   array: LBRACKET list RBRACKET { result = AST::ArrayNode.new(@filename, nil, val[1]) }
@@ -64,7 +63,10 @@ rule
              | assignment { result = val[0] }
 
 
+  method_name: IDENTIFIER { result = AST::VarRefNode.new(@filename, nil, val[0].data) }
+
   term: IDENTIFIER { result = AST::VarRefNode.new(@filename, nil, val[0].data) }
+      | CONSTANT { result = AST::ConstantRefNode.new(@filename, nil, val[0].data) }
       | literal
       | array
       | method_call
@@ -77,18 +79,25 @@ rule
          | FALSE { result = AST::LiteralNode.new(@filename, nil, false) }
          | VOID { result = AST::LiteralNode.new(@filename, nil, nil) }
 
-  method_call: IDENTIFIER DOT IDENTIFIER optional_block { result = AST::FunctionCallNode.new(@filename, nil, AST::VarRefNode.new(@filename, nil, val[0].data), val[2].data, [], val[3]) }
-             | IDENTIFIER DOT IDENTIFIER LPAREN list RPAREN optional_block { result = AST::FunctionCallNode.new(@filename, nil, AST::VarRefNode.new(@filename, nil, val[0].data), val[2].data, val[4], val[6]) }
-             | IDENTIFIER LPAREN list RPAREN optional_block { result = AST::FunctionCallNode.new(@filename, nil, nil, val[0].data, val[2], val[4]) }
-             | IDENTIFIER '[' expression RBRACKET { result = AST::FunctionCallNode.new(@filename, nil, AST::VarRefNode.new(@filename, nil, val[0].data), '[]', [val[2]], nil) }
+
+  method_definition: method_name ':' block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].variable_name, AST::Function.new(@filename, nil, [], val[2])) }
+                   | method_name ASSIGNMENT inline_block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].variable_name, AST::Function.new(@filename, nil, [], val[2])) }
+                   | method_name LPAREN list RPAREN ':' block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].variable_name, AST::Function.new(@filename, nil, val[2], val[5])) }
+                   | method_name LPAREN list RPAREN ASSIGNMENT inline_block { result = AST::FunctionDefinitionNode.new(@filename, nil, val[0].variable_name, AST::Function.new(@filename, nil, val[2], val[5])) }
+
+  method_call: term DOT method_name optional_block { result = AST::FunctionCallNode.new(@filename, nil, val[0], val[2].variable_name, [], val[3]) }
+             | term DOT method_name LPAREN list RPAREN optional_block { result = AST::FunctionCallNode.new(@filename, nil, val[0], val[2].variable_name, val[4], val[6]) }
+             | method_name LPAREN list RPAREN optional_block { result = AST::FunctionCallNode.new(@filename, nil, nil, val[0].variable_name, val[2], val[4]) }
+             | term '[' expression RBRACKET { result = AST::FunctionCallNode.new(@filename, nil, val[0], '[]', [val[2]], nil) }
 
   object_call: CONSTANT LPAREN list RPAREN optional_block { result = AST::InstanceInitNode.new(@filename, nil, val[0].data, val[2], val[4]) }
 
   optional_block: { result = nil }
-                | ARROW block { result = AST::BlockNode.new(@filename, nil, val[1]) }
+                | ARROW LPAREN list RPAREN block { result = AST::BlockNode.new(@filename, nil, val[4], val[2]) }
+                | ARROW block { result = AST::BlockNode.new(@filename, nil, val[1], []) }
 
 ---- header
-NODES = %w(node root_node function_call_node function_definition_node function_node string_node literal_node var_ref_node if_node assignment_node while_node class_definition_node instance_init_node block_node array_node)
+NODES = %w(node root_node function_call_node function_definition_node function_node string_node literal_node var_ref_node if_node assignment_node while_node class_definition_node instance_init_node block_node array_node unary_function_call_node constant_ref_node)
 NODES.each { |node| require_relative "../dagon/ast/#{node}" }
 
 ---- inner
@@ -115,7 +124,7 @@ NODES.each { |node| require_relative "../dagon/ast/#{node}" }
   end
 
   def on_error error_token_id, error_value, value_stack
-    $stderr.puts "line #{@filename}:#{@line+1}: syntax error, unexpected #{error_value.data.inspect}", value_stack.inspect
+    $stderr.puts "#{@filename}:#{error_value.line}: syntax error, unexpected #{error_value.data.inspect}", value_stack.inspect
     exit
   end
 

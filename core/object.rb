@@ -16,6 +16,10 @@ module Dagon
         klass
       end
 
+      def dagon_const_set constant, value
+        @klass.dagon_const_set(constant, value)
+      end
+
       def dagon_const_get constant
         @klass.dagon_const_get(constant)
       end
@@ -25,9 +29,13 @@ module Dagon
         if method
           method.call(interpreter, self, *args) || Dvoid
         else
-          $stderr.puts "Something's rotten #{@klass} #{name}"
+          $stderr.puts "undefined method '#{name}' for #{self.inspect}:#{self.klass.name}"
           exit(1)
         end
+      end
+
+      def to_instance
+        "#<#{@klass}>"
       end
 
       def set_instance_variable name, value
