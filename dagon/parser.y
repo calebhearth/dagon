@@ -2,6 +2,7 @@ class Dagon::Parser
 prechigh
   right EXPONENT
   left '!'
+  left '&&' '||'
   left '*' '/'
   left '+' '-'
   left ':'
@@ -42,6 +43,8 @@ rule
             | expression '+' expression { result = call_on_object(val[0], '+', val[2]) }
             | expression '*' expression { result = call_on_object(val[0], '*', val[2]) }
             | expression '/' expression { result = call_on_object(val[0], '/', val[2]) }
+            | expression '&&' expression { result = call_on_object(val[0], '&&', val[2]) }
+            | expression '||' expression { result = call_on_object(val[0], '||', val[2]) }
             | expression EXPONENT expression { result = call_on_object(val[0], '**', val[2]) }
             | condition
 
