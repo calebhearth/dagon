@@ -1,9 +1,9 @@
 -assert(expression):
   if expression
-    print(".")
+    print("\e[32m.\e[0m")
     true
   else
-    print("F")
+    print("\e[31mF\e[0m")
     false
 
 assert-equal(lhs, rhs):
