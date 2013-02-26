@@ -2,8 +2,8 @@
 
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..")
 
-require './build/scanner'
-require './build/parser'
+require 'build/scanner'
+require 'build/parser'
 require 'core/vm'
 
 def run_tests files
@@ -24,10 +24,12 @@ def run_tests files
   end
 end
 
-files = if !ARGV.empty?
-          ARGV
-        else
-          Dir.glob('spec/*_spec.dg')
-        end
+def dspec_files
+  if ARGV.empty?
+    Dir.glob('spec/*_spec.dg')
+  else
+    ARGV
+  end
+end
 
-run_tests(files)
+run_tests(dspec_files)

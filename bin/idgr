@@ -3,8 +3,8 @@
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..")
 
 require 'readline'
-require './build/scanner'
-require './build/parser'
+require 'build/scanner'
+require 'build/parser'
 
 vm = Dagon::Core::VM.new
 filename = '(stdin)'

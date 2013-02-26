@@ -116,7 +116,7 @@ rule
   string_node literal_node var_ref_node if_node assignment_node while_node
   class_definition_node instance_init_node block_node hash_node array_node
   unary_function_call_node constant_ref_node instance_var_ref_node
-).each { |node| require_relative "../dagon/ast/#{node}" }
+).each { |node| require "ast/#{node}" }
 
 ---- inner
 

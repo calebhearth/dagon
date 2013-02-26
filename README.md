@@ -84,3 +84,17 @@ print():
 name: # value
 another-name: # value
 ```
+
+## Installing the gem
+
+You'll need a recent version of Ruby to run Dagon:
+
+```bash
+curl -L https://get.rvm.io | bash -s stable --ruby
+```
+
+Then, simply
+
+```bash
+gem install dagon
+```
