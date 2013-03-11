@@ -1,15 +1,21 @@
 #!/usr/bin/env dagon
 
+require("readline")
+
 Idg:
+  read-line:
+    Readline.readline("idg:> ", true)
+
   start:
-    print("idg:> ")
-    line: gets
     while true
-      result: eval(line)
-      print("=> ")
-      puts(result)
-      print("idg:> ")
-      line: gets
+      line: read-line
+      begin ->
+        if line != ""
+          result: eval(line)
+          print("=> ")
+          puts(result.inspect)
+      rescue ->(e)
+        puts(e.message)
 
 idg: Idg()
 idg.start()

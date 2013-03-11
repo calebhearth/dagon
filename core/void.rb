@@ -4,7 +4,9 @@ module Dagon
   module Core
     class Void < DG_Object
       include Singleton
+      attr_reader :value
       def initialize
+        @value = nil
         @klass = DG_VoidClass.new
       end
 
@@ -28,9 +30,8 @@ module Dagon
       end
 
       def boot
-        add_method "=", ->(vm, ref, other) {
-          ref == other ? Dtrue : Dfalse
-        }
+        add_method "=", ->(vm, ref, other) { ref == other ? Dtrue : Dfalse }
+        add_method 'inspect', ->(vm, ref) { ref.inspect }
       end
     end
   end

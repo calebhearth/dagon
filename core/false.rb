@@ -4,6 +4,7 @@ module Dagon
   module Core
     class False < DG_Object
       include Singleton
+      attr_reader :value
 
       def initialize
         @value = false
@@ -36,6 +37,7 @@ module Dagon
         add_method '||', ->(vm, ref, other) { other }
         add_method '^', ->(vm, ref, other) { other }
         add_method 'to-s', ->(vm, ref) { vm.get_class("String").dagon_new(vm, "false") }
+        add_method 'inspect', ->(vm, ref) { ref.inspect }
       end
     end
   end

@@ -5,6 +5,7 @@ module Dagon
       def initialize name = nil, parent = nil
         @constants = {}
         @methods = {
+          inspect: ->(vm, ref, *args) { vm.string("#<#{name}>") },
           methods: ->(vm, ref, *args) { vm.get_class("Array").dagon_new(vm, @methods.keys) },
           init: ->(vm, ref, *args) { },
           exit: ->(vm, ref, *args) { exit(0) },
@@ -13,9 +14,17 @@ module Dagon
           gets: ->(vm, ref, *args) { vm.get_class("String").dagon_new(vm, $stdin.gets) },
           system: ->(vm, ref, *args) { vm.get_class("String").dagon_new(vm, Kernel.send(:`, *args.map(&:to_s))) },
           eval: ->(vm, ref, *args) {
-            tokens = Dagon::Scanner.tokenize(args[0].value, '(eval)')
-            tree = Dagon::Parser.parse(tokens, '(eval)', false)
-            tree.evaluate(vm)
+            tokens = Dagon::Scanner.tokenize(args[0].value, '(eval)') do |error|
+              vm.error("SyntaxError", error)
+              return
+            end
+            tree = Dagon::Parser.parse(tokens, '(eval)', false) do |error|
+              vm.error("SyntaxError", error)
+              return
+            end
+            vm.top_level_eval do
+              tree.evaluate(vm)
+            end
           },
           load: ->(vm, ref, *args) {
             filename = args[0]
@@ -29,6 +38,21 @@ module Dagon
           require: ->(vm, ref, *args) {
             filename = vm.get_class("String").dagon_new(vm, "#{args[0]}.dg")
             @methods[:load].call(vm, ref, filename)
+          },
+          :"require-ext" => ->(vm, ref, *args) {
+            filename = args[0]
+            vm.load_paths.each do |path|
+              file = File.join(path, "ext", filename.value)
+              if File.exists?("#{file}.rb")
+                status = require(file)
+                if status
+                  send("init_#{filename}".to_sym, vm)
+                end
+                return status
+              end
+            end
+            vm.dg_const_get("STDERR").io.puts("Could not load #{filename}")
+            exit(1)
           }
         }
         @class_ivars = {}
@@ -38,6 +62,9 @@ module Dagon
           },
           superclass: ->(vm, ref) {
             vm.get_class(ref.parent.name)
+          },
+          inspect: ->(vm, ref) {
+            ref.name
           }
         }
         @class_methods["=".to_sym] = ->(vm, ref, other_class) {
